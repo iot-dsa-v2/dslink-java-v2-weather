@@ -65,13 +65,4 @@ public class DateWeatherDetails extends DSNode {
         getParent().remove(getInfo());
     }
 
-    private void putA(String metrickey, DSIValue value) {
-        DSInfo info = getInfo(metrickey);
-        if (info == null) {
-            declareDefault(metrickey, value).setReadOnly(true);
-        } else {
-            put(info, value);
-        }
-    }
-
 }
