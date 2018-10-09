@@ -15,11 +15,7 @@ import org.iot.dsa.node.action.DSAction;
 /**
  * The main and only node of this link.
  */
-public class MainNode extends DSMainNode implements Runnable {
-
-    private final DSInfo counter = getInfo(Constants.COUNTER);
-    private final DSInfo reset = getInfo(Constants.RESET);
-    private DSRuntime.Timer timer;
+public class MainNode extends DSMainNode {
 
     public MainNode() {
     }
@@ -33,14 +29,6 @@ public class MainNode extends DSMainNode implements Runnable {
             return null;
         }
         return super.onInvoke(actionInfo, invocation);
-    }
-
-    @Override
-    public void run() {
-        synchronized (counter) {
-            DSInt value = (DSInt) counter.getValue();
-            put(counter, DSInt.valueOf(value.toInt() + 1));
-        }
     }
 
     @Override
