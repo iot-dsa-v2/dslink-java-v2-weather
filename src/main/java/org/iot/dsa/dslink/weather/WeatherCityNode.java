@@ -1,5 +1,6 @@
 package org.iot.dsa.dslink.weather;
 
+import org.iot.dsa.DSRuntime;
 import org.iot.dsa.dslink.weather.utils.Constants;
 import org.iot.dsa.dslink.weather.utils.DegreeUnit;
 import org.iot.dsa.dslink.weather.utils.TempConverterUtil;
@@ -21,26 +22,26 @@ import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Created by KA306983 on 9/10/2018.
  */
 
-public class WeatherCityNode extends DSNode {
+public class WeatherCityNode extends DSNode implements Runnable {
 
     private String city = "";
-    private String units="";
+    private String units = "";
     JSONArray JSONArray_weather;
-    private String units_temperature="";
+    private String units_temperature = "";
+    private DSRuntime.Timer timer;
 
 
     public WeatherCityNode() {
 
     }
 
-    public WeatherCityNode(String city,String units) {
+    public WeatherCityNode(String city, String units) {
         this.city = city;
-        this.units=units;
+        this.units = units;
     }
 
     @Override
@@ -67,24 +68,23 @@ public class WeatherCityNode extends DSNode {
 
     @Override
     protected void onStable() {
-        makeWeatherDetails(city,units);
-        makeForecastNode(JSONArray_weather,units_temperature);
+        makeWeatherDetails(city, units);
+        makeForecastNode(JSONArray_weather, units_temperature);
+        timer = DSRuntime.run(this, System.currentTimeMillis() + (1800 * 1000), (1800 * 1000));
     }
 
-    private void makeWeatherDetails(String city,String units) {
-        boolean f2c_converter=false;
+    private void makeWeatherDetails(String city, String units) {
+        boolean f2c_converter = false;
 
         if (city != null) {
             String url = "";
             WeatherService service = new WeatherService();
             try {
-                if(units.equalsIgnoreCase(Constants.UNITS_IMPERIAL))
-                {
+                if (units.equalsIgnoreCase(Constants.UNITS_IMPERIAL)) {
                     url = service.getForecastForLocation(city, DegreeUnit.FAHRENHEIT).first(Constants.LIMITATION);
-                }
-                else if(units.equalsIgnoreCase(Constants.UNITS_METRIC)) {
+                } else if (units.equalsIgnoreCase(Constants.UNITS_METRIC)) {
                     url = service.getForecastForLocation(city, DegreeUnit.CELSIUS).first(Constants.LIMITATION);
-                    f2c_converter=true;
+                    f2c_converter = true;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -118,18 +118,18 @@ public class WeatherCityNode extends DSNode {
                     String units_distance = Constants.SPACE_CHAR.concat(units_json.getString(Constants.DISTANCE));
                     String units_pressure = Constants.SPACE_CHAR.concat(units_json.getString(Constants.PRESSURE.toLowerCase()));
                     String units_speed = Constants.SPACE_CHAR.concat(units_json.getString(Constants.SPEED));
-                    units_temperature=Constants.DEGREE_SYMBOL.concat(units_json.getString(Constants.TEMPERATURE.toLowerCase()));
+                    units_temperature = Constants.DEGREE_SYMBOL.concat(units_json.getString(Constants.TEMPERATURE.toLowerCase()));
 
 
                     JSONObject location = channel.getJSONObject(Constants.LOCATION);
 
                     JSONObject wind = channel.getJSONObject(Constants.WIND);
-                    String chill=wind.getString(Constants.CHILL);
+                    String chill = wind.getString(Constants.CHILL);
 
-                    if(f2c_converter==true) {
-                        chill=TempConverterUtil.fahrenheitToCelsius(chill);
+                    if (f2c_converter == true) {
+                        chill = TempConverterUtil.fahrenheitToCelsius(chill);
                     }
-                    chill=chill.concat(units_temperature);
+                    chill = chill.concat(units_temperature);
                     String direction = wind.getString(Constants.DIRECTION);
                     String speed = wind.getString(Constants.SPEED).concat(units_speed);
                     //String temperature = wind.getString("chill");
@@ -138,7 +138,6 @@ public class WeatherCityNode extends DSNode {
                     String humidity = atmosphere.getString(Constants.HUMIDITY.toLowerCase());
                     String pressure = atmosphere.getString(Constants.PRESSURE.toLowerCase()).concat(units_pressure);
                     String visibility = atmosphere.getString(Constants.VISIBILITY.toLowerCase()).concat(units_distance);
-
 
                     JSONObject astronomy = channel.getJSONObject(Constants.ASTRONOMY);
                     String sunrise = astronomy.getString(Constants.SUNRISE.toLowerCase());
@@ -166,7 +165,7 @@ public class WeatherCityNode extends DSNode {
                     put(Constants.WINDSPEED, speed);
 
                 } else {
-                    System.out.println("Error in httpURLConnection.getResponseCode()!!!");
+                    Logger.getLogger("Error in httpURLConnection.getResponseCode()!!!");
                 }
 
             } catch (MalformedURLException ex) {
@@ -179,8 +178,8 @@ public class WeatherCityNode extends DSNode {
         }
     }
 
-    private void makeForecastNode(JSONArray JSONArray_weather,String units_temperature) {
-        put(Constants.FORECAST, new ForecastNode(JSONArray_weather,units_temperature));
+    private void makeForecastNode(JSONArray JSONArray_weather, String units_temperature) {
+        put(Constants.FORECAST, new ForecastNode(JSONArray_weather, units_temperature));
     }
 
     private DSAction makeRemoveAction() {
@@ -197,4 +196,9 @@ public class WeatherCityNode extends DSNode {
         getParent().remove(getInfo());
     }
 
+    @Override
+    public void run() {
+        makeWeatherDetails(city, units);
+        makeForecastNode(JSONArray_weather, units_temperature);
+    }
 }

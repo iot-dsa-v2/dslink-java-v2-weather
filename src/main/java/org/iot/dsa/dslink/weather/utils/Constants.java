@@ -61,5 +61,6 @@ public class Constants {
     public static final String TEXT="text";
     public static final String DEGREE_SYMBOL  = "\u00b0";
     public static final String SPACE_CHAR  = " ";
+    public static final String POLL_RATE="Poll Rate";
 
 }

@@ -31,12 +31,6 @@ public class DateWeatherDetails extends DSNode {
         this.high = high;
         this.low = low;
         this.text = text;
-
-    }
-
-    @Override
-    protected void onStable() {
-        super.onStable();
         dateWeatherDetails(code, date, day, high, low, text);
     }
 
@@ -58,7 +52,6 @@ public class DateWeatherDetails extends DSNode {
         put(Constants.DAY, day);
         put(Constants.HIGH, high);
         put(Constants.LOW, low);
-
     }
 
     private void delete() {

@@ -27,18 +27,9 @@ public class ForecastNode extends DSNode {
 
     public ForecastNode(JSONArray JSONArray_weather, String units_temperature) {
         this.JSONArray_weather = JSONArray_weather;
-        this.units_temperature=units_temperature;
+        this.units_temperature = units_temperature;
+        forcastDetails(this.JSONArray_weather, units_temperature);
     }
-
-    @Override
-    protected void onStable() {
-        try {
-            forcastDetails(this.JSONArray_weather,units_temperature);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Override
     protected void declareDefaults() {
@@ -60,7 +51,7 @@ public class ForecastNode extends DSNode {
         getParent().remove(getInfo());
     }
 
-    private void forcastDetails(JSONArray JSONArray_weather,String units_temperature) throws JSONException {
+    private void forcastDetails(JSONArray JSONArray_weather, String units_temperature) throws JSONException {
         if (JSONArray_weather.length() > 0) {
             for (int i = 0, size = JSONArray_weather.length(); i < size; i++) {
                 JSONObject JSONObject_weather = JSONArray_weather.getJSONObject(i);
@@ -71,7 +62,7 @@ public class ForecastNode extends DSNode {
                 String low = JSONObject_weather.getString(Constants.LOW).concat(units_temperature);
                 String text = JSONObject_weather.getString(Constants.TEXT);
 
-                put(date,new DateWeatherDetails(code, date, day, high, low, text));
+                put(date, new DateWeatherDetails(code, date, day, high, low, text));
 
             }
         }
