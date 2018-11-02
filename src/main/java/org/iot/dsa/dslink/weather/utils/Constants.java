@@ -33,7 +33,7 @@ public class Constants {
     public static final String DATE="date";
     public static final String DAY="day";
     public static final String YAHOO_WEATHER_SERVICE_URL = "http://query.yahooapis.com/v1/public/yql";
-    public static final String WEATHER_DOC_URL = "https://github.com/iot-dsa-v2/dslink-java-v2-weather-develop";
+    public static final String WEATHER_DOC_URL = "https://github.com/iot-dsa-v2/dslink-java-v2-weather";
     public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
     public static final String ACT_REMOVE = "Remove";
     public static final String FORECAST = "Forecast";
